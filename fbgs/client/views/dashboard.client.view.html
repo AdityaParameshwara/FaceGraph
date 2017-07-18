@@ -1,0 +1,384 @@
+<section ng-controller="DashboardController">
+
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" style="width: 16%">
+      <a class="nav-link active" data-toggle="tab" href="#users" id="usersAnchor" role="tab">Users</a>
+    </li>
+    <li class="nav-item" style="width: 16%">
+      <a class="nav-link" data-toggle="tab" href="#pages" id="pagesAnchor" role="tab">Pages</a>
+    </li>
+    <li class="nav-item" style="width: 16%">
+      <a class="nav-link" data-toggle="tab" href="#events" id="eventsAnchor" role="tab">Events</a>
+    </li>
+    <li class="nav-item" style="width: 16%">
+      <a class="nav-link" data-toggle="tab" href="#places" id="placesAnchor" role="tab">Places</a>
+    </li>
+    <li class="nav-item" style="width: 16%">
+      <a class="nav-link" data-toggle="tab" href="#groups" id="groupsAnchor" role="tab">Groups</a>
+    </li>
+    <li class="nav-item" style="width: 16%">
+      <a class="nav-link" data-toggle="tab" href="#favorites" id="favAnchor" role="tab">Favorites</a>
+    </li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+
+    <div class="tab-pane active" id="users">
+      <div id="usersCarousel" class="carousel slide" data-inherit="false">
+        <div class="carousel-inner" role="listbox">
+
+          <div class="item active">
+            <div class="row">
+
+              <div id="noFreqSearchedUsers" style="display: none; color: beige">There are no Frequently searched users..</div>
+
+              <div class="col-md-2 col-sm-4 col-xs-12" ng-repeat="result in searchResult.data" align="center">
+                <div style="border: 1px black solid; height: 100%; padding: 10px; margin: 20px;" class="boxShadow">
+                  <figure>
+                    <img src="{{result.picture.data.url}}" style="max-width: 50%; max-height: 150px;">
+                   <figcaption ng-if="result.name.length < 31" style="font-size: x-small">{{result.name}}</figcaption>
+                    <figcaption title={{result.name}} ng-if="result.name.length > 30" style="font-size: x-small">
+                        {{result.name | limitTo: 30}}...
+                    </figcaption>
+                  </figure>
+                  <a href="#" ng-if="isUserMarkedAsFavourite(result.id)" class="btn btn-default favouritesButton" ng-click="changeFavouriteUsersColor(result.id)" ng-attr-id="{{result.id+'selected'}}"><span class="glyphicon glyphicon-star" style="color: #fffd38;-webkit-text-stroke-width: 1px; -webkit-text-stroke-color: black"></span></a>
+                  <a href="#" ng-if="!(isUserMarkedAsFavourite(result.id))" class="btn btn-default favouritesButton" ng-click="changeFavouriteUsersColor(result.id)" ng-attr-id="{{result.id}}"><span class="glyphicon glyphicon-star-empty"></span></a>
+                  <button type="button" class="btn btn-default favouritesButton" ng-click="showDetails(result.id)" href="#usersCarousel" role="button" data-slide-to="1" style="position: inherit">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                  </button>
+                </div>
+              </div>
+              <div align="center" id="usersControlPanel" style="display: none">
+                <button ng-click="showPrevDetails()">Prev</button>
+                <button ng-click="showNextDetails()">Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="item">
+            <div id="userDetailsCarouselContent" style="position: relative; color: beige">
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="button" class="btn btn-default" href="#usersCarousel" role="button" data-slide-to="0" style="color: beige; background-color: transparent; margin-top: 5px; margin-bottom: 5px;"><span class="glyphicon glyphicon-menu-left"></span></button>
+                  <button type="button" class="btn btn-default" href="#usersCarousel" role="button" data-slide-to="0" style="color: beige; right: 0; float: right"><</button>
+                  <button type="button" class="btn btn-default" href="#usersCarousel" role="button" data-slide-to="0" style="color: beige; float: right;"><</button>
+                </div>
+              </div>
+              <div class="row" align="center" style="margin-left: 0; margin-right: 0;">
+                <div class="col-md-6 col-sm-6 col-xs-11" style="padding-right: 5px; padding-left: 5px;">
+                  <div style="border: 1px solid beige; border-radius: 5px;">
+                    <div class="well well-sm" style="color: black; margin-bottom: 0px;">Albums</div>
+
+                    <div id="noUserAlbums" style="display: none">There are no albums for this user</div>
+
+                    <div style="padding: 15px; max-height: 40em; overflow-y: auto">
+                      <div ng-repeat="album in userDetails.albums.data" style="padding: 5px;">
+
+                        <div class="well well-sm" style="color: black; cursor: pointer" ng-click="selected.value = $index">{{album.name}}</div>
+
+                        <div style="padding: 5px;" ng-if="selected.value == $index">
+                          <div id="userAlbumsCarousel" class="carousel slide" data-ride="carousel">
+                            <!-- Wrapper for slides -->
+                            <div class="carousel-inner">
+                              <div ng-class="{'item':1, 'active': $index == 0}" ng-repeat="photo in album.photos.data">
+                                <figure>
+                                  <img src="https://graph.facebook.com/v2.8/{{photo.id}}/picture?access_token=EAADvZBDZAts64BAKlhWqPhMbEUTPyIZBZCxJpgMBmzWhM2750pipwYmj1zq13UDZBb5Twwi5uW6PjAr4hnRW54PSXMbLCdkZBZCzk0cVxiuujpjH1o09UW1zQBVZB0zBDsZBkSTPpFNwg4SXFq8N7quabI9J2jAQC1k8ZD" style="width: 350px; height: 350px;">
+                                  <figcaption style="font-size: x-small">{{photo.name}}</figcaption>
+                                </figure>
+                              </div>
+                            </div>
+                            <!-- Left and right controls -->
+                            <a class="left carousel-control" href="#userAlbumsCarousel" data-slide="prev">
+                              <span class="glyphicon glyphicon-chevron-left"></span>
+                              <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="right carousel-control" href="#userAlbumsCarousel" data-slide="next">
+                              <span class="glyphicon glyphicon-chevron-right"></span>
+                              <span class="sr-only">Next</span>
+                            </a>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="col-md-6 col-sm-6 col-xs-11" style="padding-right: 5px; padding-left: 5px" align="left">
+                  <div style="border: 1px solid beige; border-radius: 5px;">
+
+                    <div class="well well-sm" style="color: black; margin-bottom: 0px;">Posts</div>
+
+                    <div id="noUserPosts" style="display: none">There are no posts for this user</div>
+
+                    <div style="padding: 15px; max-height: 40em; overflow-y: auto">
+                      <div ng-repeat="post in userDetails.posts.data" style="border: 1px solid beige; margin-bottom: 10px; border-radius: 5px; padding: 5px;">
+                        <table>
+                          <tr>
+                            <td rowspan="2" style="width: 30%; padding-left: 5px;">
+                              <img src="{{userDetails.picture.data.url}}" style="height: 40px"/>
+                            </td>
+                            <td style="font-size: large">{{userDetails.name}}</td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: small">{{post.created_time | amDateFormat:'YYYY-MM-DD hh:mm:ss a'}}</td>
+                          </tr>
+                        </table>
+                        <p style="padding-left: 5px; padding-top: 5px;">{{post.message}}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div class="tab-pane" id="pages" role="tabpanel">
+
+      <div id="pagesCarousel" class="carousel slide" data-inherit="false">
+        <div class="carousel-inner" role="listbox">
+
+          <div class="item active">
+            <div class="row">
+
+              <div id="noFreqSearchedPages" style="display: none; color: beige">There are no Frequently searched pages..</div>
+
+              <div class="col-md-2 col-sm-4 col-xs-12" ng-repeat="result in searchResult.data" align="center">
+                <div style="border: 1px black solid; height: 100%; padding: 10px; margin: 20px;" class="boxShadow">
+                  <figure>
+                    <img src="{{result.picture.data.url}}" style="max-width: 50%; max-height: 150px;">
+                    <figcaption ng-if="result.name.length < 31" style="font-size: x-small">{{result.name}}</figcaption>
+                    <figcaption title={{result.name}} ng-if="result.name.length > 30" style="font-size: x-small">
+                        {{result.name | limitTo: 30}}...
+                    </figcaption>
+                  </figure>
+                  <a href="#" ng-if="isPageMarkedAsFavourite(result.id)" class="btn btn-default favouritesButton" ng-click="changeFavouritePagesColor(result.id)" ng-attr-id="{{result.id+'selected'}}"><span class="glyphicon glyphicon-star" style="color: #fffd38;-webkit-text-stroke-width: 1px; -webkit-text-stroke-color: black"></span></a>
+                  <a href="#" ng-if="!(isPageMarkedAsFavourite(result.id))" class="btn btn-default favouritesButton" ng-click="changeFavouritePagesColor(result.id)" ng-attr-id="{{result.id}}"><span class="glyphicon glyphicon-star-empty"></span></a>
+                  <button type="button" class="btn btn-default favouritesButton" ng-click="showDetails(result.id)" href="#pagesCarousel" role="button" data-slide-to="1" style="position: inherit">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                  </button>
+                </div>
+              </div>
+              <div align="center" id="pagesControlPanel" style="display: none">
+                <button ng-click="showPrevDetails()">Prev</button>
+                <button ng-click="showNextDetails()">Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="item">
+            <div id="pageDetailsCarouselContent" style="position: relative; color: beige">
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="button" class="btn btn-default" href="#pagesCarousel" role="button" data-slide-to="0" style="color: beige; background-color: transparent; margin-top: 5px; margin-bottom: 5px;"><span class="glyphicon glyphicon-menu-left"></span></button>
+                  <button type="button" class="btn btn-default" href="#pagesCarousel" role="button" data-slide-to="0" style="color: beige; right: 0; float: right"><</button>
+                  <button type="button" class="btn btn-default" href="#pagesCarousel" role="button" data-slide-to="0" style="color: beige; float: right;"><</button>
+                </div>
+              </div>
+              <div class="row" align="center" style="margin-left: 0; margin-right: 0;">
+                <div class="col-md-6 col-sm-6 col-xs-11" style="padding-right: 5px; padding-left: 5px;">
+                  <div style="border: 1px solid beige; border-radius: 5px;">
+                    <div class="well well-sm" style="color: black; margin-bottom: 0px;">Albums</div>
+
+                    <div id="noPageAlbums" style="display: none">There are no albums for this page</div>
+
+                    <div style="padding: 15px; max-height: 40em; overflow-y: auto">
+                      <div ng-repeat="album in userDetails.albums.data" style="padding: 5px;">
+
+                        <div class="well well-sm" style="color: black; cursor: pointer" ng-click="selected.value = $index">{{album.name}}</div>
+
+                        <div style="padding: 5px;" ng-if="selected.value == $index">
+                          <div id="pageAlbumsCarousel" class="carousel slide" data-ride="carousel">
+                            
+                            <div class="carousel-inner">
+                              <div ng-class="{'item':1, 'active': $index == 0}" ng-repeat="photo in album.photos.data">
+                                <figure>
+                                  <img src="https://graph.facebook.com/v2.8/{{photo.id}}/picture?access_token=EAADvZBDZAts64BAKlhWqPhMbEUTPyIZBZCxJpgMBmzWhM2750pipwYmj1zq13UDZBb5Twwi5uW6PjAr4hnRW54PSXMbLCdkZBZCzk0cVxiuujpjH1o09UW1zQBVZB0zBDsZBkSTPpFNwg4SXFq8N7quabI9J2jAQC1k8ZD" style="width: 350px; height: 350px;">
+                                  <figcaption style="font-size: x-small">{{photo.name}}</figcaption>
+                                </figure>
+                              </div>
+                            </div>
+                            
+                            <a class="left carousel-control" href="#pageAlbumsCarousel" data-slide="prev">
+                              <span class="glyphicon glyphicon-chevron-left"></span>
+                              <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="right carousel-control" href="#pageAlbumsCarousel" data-slide="next">
+                              <span class="glyphicon glyphicon-chevron-right"></span>
+                              <span class="sr-only">Next</span>
+                            </a>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="col-md-6 col-sm-6 col-xs-11" style="padding-right: 5px; padding-left: 5px" align="left">
+                  <div style="border: 1px solid beige; border-radius: 5px;">
+
+                    <div class="well well-sm" style="color: black; margin-bottom: 0px;">Posts</div>
+
+                    <div id="noPagePosts" style="display: none">There are no posts for this page</div>
+
+                    <div style="padding: 15px; max-height: 40em; overflow-y: auto">
+                      <div ng-repeat="post in userDetails.posts.data" style="border: 1px solid beige; margin-bottom: 10px; border-radius: 5px; padding: 5px;">
+                        <table>
+                          <tr>
+                            <td rowspan="2" style="width: 30%; padding-left: 5px;">
+                              <img src="{{userDetails.picture.data.url}}" style="height: 40px"/>
+                            </td>
+                            <td style="font-size: large">{{userDetails.name}}</td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: small">{{post.created_time | amDateFormat:'YYYY-MM-DD hh:mm:ss a'}}</td>
+                          </tr>
+                        </table>
+                        <p style="padding-left: 5px; padding-top: 5px;">{{post.message}}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div class="tab-pane" id="events" role="tabpanel">  
+      <div id="eventsCarousel" class="carousel slide" data-inherit="false">
+        <div class="carousel-inner" role="listbox">
+
+          <div class="item active">
+            <div class="row">
+
+              <div id="noFreqSearchedEvents" style="display: none; color: beige">There are no Frequently searched events..</div>
+
+              <div class="col-md-2 col-sm-4 col-xs-12" ng-repeat="result in searchResult.data" align="center">
+                <div style="border: 1px black solid; height: 100%; padding: 10px; margin: 20px;" class="boxShadow">
+                  <figure>
+                    <img src="{{result.picture.data.url}}" style="max-width: 50%; max-height: 150px;">
+                    <figcaption ng-if="result.name.length < 31" style="font-size: x-small">{{result.name}}</figcaption>
+                    <figcaption title={{result.name}} ng-if="result.name.length > 30" style="font-size: x-small">
+                        {{result.name | limitTo: 30}}...
+                    </figcaption>
+                  </figure>
+                  <a href="#" ng-if="isEventMarkedAsFavourite(result.id)" class="btn btn-default favouritesButton" ng-click="changeFavouriteEventsColor(result.id)" ng-attr-id="{{result.id+'selected'}}"><span class="glyphicon glyphicon-star" style="color: #fffd38;-webkit-text-stroke-width: 1px; -webkit-text-stroke-color: black"></span></a>
+                  <a href="#" ng-if="!(isEventMarkedAsFavourite(result.id))" class="btn btn-default favouritesButton" ng-click="changeFavouriteEventsColor(result.id)" ng-attr-id="{{result.id}}"><span class="glyphicon glyphicon-star-empty"></span></a>
+                  <button type="button" class="btn btn-default favouritesButton" ng-click="showDetails(result.id)" href="#eventsCarousel" role="button" data-slide-to="1" style="position: inherit">
+                    <span class="glyphicon glyphicon-menu-right"></span>
+                  </button>
+                </div>
+              </div>
+              <div align="center" id="eventsControlPanel" style="display: none">
+                <button ng-click="showPrevDetails()">Prev</button>
+                <button ng-click="showNextDetails()">Next</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="item">
+            <div id="eventDetailsCarouselContent" style="position: relative; color: beige">
+              <div class="row">
+                <div class="col-md-12">
+                  <button type="button" class="btn btn-default" href="#eventsCarousel" role="button" data-slide-to="0" style="color: beige; background-color: transparent; margin-top: 5px; margin-bottom: 5px;"><span class="glyphicon glyphicon-menu-left"></span></button>
+                  <button type="button" class="btn btn-default" href="#eventsCarousel" role="button" data-slide-to="0" style="color: beige; right: 0; float: right"><</button>
+                  <button type="button" class="btn btn-default" href="#eventsCarousel" role="button" data-slide-to="0" style="color: beige; float: right;"><</button>
+                </div>
+              </div>
+              <div class="row" align="center" style="margin-left: 0; margin-right: 0;">
+                <div class="col-md-6 col-sm-6 col-xs-11" style="padding-right: 5px; padding-left: 5px;">
+                  <div style="border: 1px solid beige; border-radius: 5px;">
+                    <div class="well well-sm" style="color: black; margin-bottom: 0px;">Albums</div>
+
+                    <div id="noEventAlbums" style="display: none">There are no albums for this event</div>
+
+                    <div style="padding: 15px; max-height: 40em; overflow-y: auto">
+                      <div ng-repeat="album in userDetails.albums.data" style="padding: 5px;">
+
+                        <div class="well well-sm" style="color: black; cursor: pointer" ng-click="selected.value = $index">{{album.name}}</div>
+
+                        <div style="padding: 5px;" ng-if="selected.value == $index">
+                          <div id="eventAlbumsCarousel" class="carousel slide" data-ride="carousel">
+                            
+                            <div class="carousel-inner">
+                              <div ng-class="{'item':1, 'active': $index == 0}" ng-repeat="photo in album.photos.data">
+                                <figure>
+                                  <img src="https://graph.facebook.com/v2.8/{{photo.id}}/picture?access_token=EAADvZBDZAts64BAKlhWqPhMbEUTPyIZBZCxJpgMBmzWhM2750pipwYmj1zq13UDZBb5Twwi5uW6PjAr4hnRW54PSXMbLCdkZBZCzk0cVxiuujpjH1o09UW1zQBVZB0zBDsZBkSTPpFNwg4SXFq8N7quabI9J2jAQC1k8ZD" style="width: 350px; height: 350px;">
+                                  <figcaption style="font-size: x-small">{{photo.name}}</figcaption>
+                                </figure>
+                              </div>
+                            </div>
+                            
+                            <a class="left carousel-control" href="#eventAlbumsCarousel" data-slide="prev">
+                              <span class="glyphicon glyphicon-chevron-left"></span>
+                              <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="right carousel-control" href="#eventAlbumsCarousel" data-slide="next">
+                              <span class="glyphicon glyphicon-chevron-right"></span>
+                              <span class="sr-only">Next</span>
+                            </a>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="col-md-6 col-sm-6 col-xs-11" style="padding-right: 5px; padding-left: 5px" align="left">
+                  <div style="border: 1px solid beige; border-radius: 5px;">
+
+                    <div class="well well-sm" style="color: black; margin-bottom: 0px;">Posts</div>
+
+                    <div id="noEventPosts" style="display: none">There are no posts for this event</div>
+
+                    <div style="padding: 15px; max-height: 40em; overflow-y: auto">
+                      <div ng-repeat="post in userDetails.posts.data" style="border: 1px solid beige; margin-bottom: 10px; border-radius: 5px; padding: 5px;">
+                        <table>
+                          <tr>
+                            <td rowspan="2" style="width: 30%; padding-left: 5px;">
+                              <img src="{{userDetails.picture.data.url}}" style="height: 40px"/>
+                            </td>
+                            <td style="font-size: large">{{userDetails.name}}</td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: small">{{post.created_time | amDateFormat:'YYYY-MM-DD hh:mm:ss a'}}</td>
+                          </tr>
+                        </table>
+                        <p style="padding-left: 5px; padding-top: 5px;">{{post.message}}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane" id="places" role="tabpanel">Places</div>
+    <div class="tab-pane" id="groups" role="tabpanel">groups</div>
+    <div class="tab-pane" id="favorites" role="tabpanel">favorites</div>
+  </div>
+
+  </div>
+</section>
